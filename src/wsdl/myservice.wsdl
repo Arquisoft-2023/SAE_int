@@ -50,9 +50,9 @@
         </operation>
     </binding>
     <service name="MyService">
-        <documentation>WSDL File for MyService</documentation>
+        <documentation>Servicios usuarios 1D</documentation>
         <port binding="tns:MyFunction_Binding" name="MyPort">
-            <soap:address location = "http://localhost:8001/MyFunction/" />
+            <soap:address location = "http://0.0.0.0:3037/SAE/soap1D/" />
         </port>
     </service>
 </definitions>
