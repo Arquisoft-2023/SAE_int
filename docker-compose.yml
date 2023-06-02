@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+    sae_int:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sae_int
+    container_name: sae_int
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.6:8001:8001"
+    networks:
+      nodes-networks:
+        aliases:
+          - sae_int
+
+networks:
+  nodes-networks:
+    external: true
