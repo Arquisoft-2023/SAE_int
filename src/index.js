@@ -5,6 +5,7 @@ const path = require('path');
 const soap = require('soap');
 const bodyParser = require('body-parser')
 const http = require("http");
+const xml2js = require('xml2js');
 
 // Configuración variables API-Gateway
 const APIPORT = process.env.APIPORT || 3121;
@@ -19,7 +20,7 @@ const entryPointUser ="gestionUsuarios/usuarios"
 const CONSUMEPORT = process.env.CONSUMEPORT;
 const CONSUMEURI =  String(process.env.CONSUMEURI)
 const CONSUMEENDPOINT = String(process.env.CONSUMEENDPOINT)
-const CONSUMEURL = `${CONSUMEURI}:${CONSUMEPORT}/${CONSUMEENDPOINT}?wsdl`;
+const CONSUMEURL = `${CONSUMEURI}:${CONSUMEPORT}/${CONSUMEENDPOINT}`;
 
 const headers = {
 	"content-type": "application/json"
@@ -43,11 +44,9 @@ var myService = {
                     method: 'post',
                     headers: headers,
                     data: {query: graphqlQuery}
-                }).then((data)=>result=data.data.data);
-                // }).then(console.log(data));
-                console.log(result)
+                }).then((data)=>result=data);
                 return {
-                    usuarios: result.leerUsuarios
+                    usuarios: result.data.data.leerUsuarios
                 };
             },
 
@@ -93,30 +92,6 @@ var xml = require('fs').readFileSync(wsdlPath, 'utf8');
 //express server example
 var app = express();
 
-//Consumo de la interface del equipo 1E
-app.get("/consumo/1E",(request,response)=>{
-    // var url = 'http://0.0.0.0:3037/SAE/soap1D?wsdl';
-    // console.log(CONSUMEURL)
-    var args = { name: 'value'};
-    soap.createClient(CONSUMEURL, function(err, client) {
-    try{
-        if(err != null) {
-            if(err) response.status(400).send(err)
-            console.log("client create error: ", err);
-        }
-    
-        if(client != null) {
-            //console.log(client.describe());
-            client.MyFunction(args, function(err, result) {
-                if(err) response.status(400).send(err)
-                // console.log("result: ", result);
-                response.status(200).send(result)
-            });
-        }
-    }catch(err){console.log(err)}
-    });
-})
-
 //http server example
 var server = http.createServer(function(request,response) {
     response.end('404: Not Found: ' + request.url);
@@ -129,6 +104,71 @@ soap.listen(server, '/SAE/soap1D', myService, xml, function(){
 
 //body parser middleware are supported (optional)
 app.use(bodyParser.raw({type: function(){return true;}, limit: '5mb'}));
+
+const parserXML = new xml2js.Parser({ explicitArray: false });
+function eliminarLlaveUnderscore(key, value) {
+    if (typeof value === "object" && value !== null) {
+      if (value.hasOwnProperty("_")) {
+        if(value["$"]["type"] == "str"){
+            value = String(value["_"])
+        }
+        else if(value["$"]["type"] == "int"){
+            value = parseInt(value["_"])
+        }
+        else{
+            value = (value["_"]);
+        }
+      }
+      if (value.hasOwnProperty("$")) {
+        delete value["$"];
+      }
+    }
+    return value;
+  }
+
+//Consumo de la interface del equipo 1E
+app.get("/consumo/1C",(request,response)=>{
+    // var url = 'http://soapdigapp.ddns.net:61285/digapp?wsdl';
+    var url = `${CONSUMEURL}?wsdl`;
+    const options = {
+        endpoint: `${CONSUMEURL}`, // Nueva dirección
+      };
+    // console.log(url)
+    soap.createClient(url,options, function(err, client) {
+        if(err != null) {
+          console.log("client create error: ", err);
+        }
+        
+        if(client != null) {
+        //   console.log(client.describe());
+          client.getAulasEstudio({}, function(err, result) {
+                if(err){
+                    console.log(err);
+                    response.status(400).send("ERROR getAulasEstudio")
+                }else{
+                    var res;
+                    parserXML.parseString(result.getAulasEstudioResult, (err, items) => {
+                        if (err) {
+                          console.error(err);
+                          return;
+                        }
+                      
+                        // Convertir el resultado a JSON
+                        const json = JSON.stringify(items, eliminarLlaveUnderscore, 2);
+                        const jsonObject = JSON.parse(json);
+                        // res = json
+                        res = jsonObject["root"]['item'];
+                      });
+
+                //   console.log("result: ", result);
+                //   console.log("err: ", err);
+                    response.status(200).send(res)
+                }
+          });
+        }
+      });
+})
+
 app.listen(3036, function(){
     //Note: /wsdl route will be handled by soap module
     //and all other routes & middleware will continue to work
