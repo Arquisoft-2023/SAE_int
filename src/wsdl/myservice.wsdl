@@ -52,7 +52,7 @@
     <service name="MyService">
         <documentation>Servicios usuarios 1D</documentation>
         <port binding="tns:MyFunction_Binding" name="MyPort">
-            <soap:address location = "http://0.0.0.0:3037/SAE/soap1D/" />
+            <soap:address location = "http://0.0.0.0:3036/SAE/soap1D/" />
         </port>
     </service>
 </definitions>

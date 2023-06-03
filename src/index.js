@@ -121,7 +121,7 @@ var server = http.createServer(function(request,response) {
     response.end('404: Not Found: ' + request.url);
 });
 
-server.listen(3037);
+server.listen(3036);
 soap.listen(server, '/SAE/soap1D', myService, xml, function(){
   console.log('server soap initialized');
 });
