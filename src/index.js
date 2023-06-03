@@ -44,7 +44,8 @@ var myService = {
                     headers: headers,
                     data: {query: graphqlQuery}
                 }).then((data)=>result=data.data.data);
-                // console.log(result)
+                // }).then(console.log(data));
+                console.log(result)
                 return {
                     usuarios: result.leerUsuarios
                 };
@@ -94,7 +95,7 @@ var app = express();
 
 //Consumo de la interface del equipo 1E
 app.get("/consumo/1E",(request,response)=>{
-    // var url = 'http://0.0.0.0:3037/soap1D?wsdl';
+    // var url = 'http://0.0.0.0:3037/SAE/soap1D?wsdl';
     // console.log(CONSUMEURL)
     var args = { name: 'value'};
     soap.createClient(CONSUMEURL, function(err, client) {
@@ -121,7 +122,7 @@ var server = http.createServer(function(request,response) {
     response.end('404: Not Found: ' + request.url);
 });
 
-server.listen(3036);
+server.listen(3037);
 soap.listen(server, '/SAE/soap1D', myService, xml, function(){
   console.log('server soap initialized');
 });
