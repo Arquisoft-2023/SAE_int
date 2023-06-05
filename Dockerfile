@@ -14,4 +14,4 @@ COPY . /sae/sae_int/
 EXPOSE 3037
 EXPOSE 3036
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "start" ]

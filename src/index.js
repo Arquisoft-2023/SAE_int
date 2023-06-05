@@ -17,10 +17,11 @@ const entryPointUser ="gestionUsuarios/usuarios"
 // const PORTREST = String(process.env.PORTREST) || 8001;
 
 // Configuración variables consumo de la interface del equipo 1E
-const CONSUMEPORT = process.env.CONSUMEPORT;
 const CONSUMEURI =  String(process.env.CONSUMEURI)
+const CONSUMEPORT = process.env.CONSUMEPORT;
 const CONSUMEENDPOINT = String(process.env.CONSUMEENDPOINT)
-const CONSUMEURL = `${CONSUMEURI}:${CONSUMEPORT}/${CONSUMEENDPOINT}`;
+// const CONSUMEURL = `${CONSUMEURI}:${CONSUMEPORT}/${CONSUMEENDPOINT}`;
+const CONSUMEURL = `${CONSUMEURI}`;
 
 const headers = {
 	"content-type": "application/json"
@@ -155,13 +156,17 @@ app.get("/consumo/1C",(request,response)=>{
                       
                         // Convertir el resultado a JSON
                         const json = JSON.stringify(items, eliminarLlaveUnderscore, 2);
+                        // const json = JSON.stringify(items, 2);
+                        // console.log(json);
                         const jsonObject = JSON.parse(json);
                         // res = json
-                        res = jsonObject["root"]['item'];
+                        // res = jsonObject["root"]['item'];
+                        res = jsonObject["root"]["data"]["establishmentsSoap"]["item"];
                       });
 
                 //   console.log("result: ", result);
                 //   console.log("err: ", err);
+                    // console.log(res)
                     response.status(200).send(res)
                 }
           });
